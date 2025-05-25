@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fullscreen Shader</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+      background: black;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas class="glslCanvas" data-fragment-url="shader.frag"></canvas>
+
+  <!-- Load glslCanvas -->
+  <script src="https://cdn.jsdelivr.net/npm/glslCanvas@0.2.6/dist/GlslCanvas.min.js"></script>
+
+  <script>
+    const canvas = document.querySelector("canvas");
+
+    // Function to resize canvas to fit the screen
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    // Initial resize and on window resize
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas(); // Call it once to initialize
+  </script>
+
+</body>
+</html>
