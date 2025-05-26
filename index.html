@@ -17,6 +17,8 @@
     }
   </style>
 </head>
+
+
 <body>
 
   <canvas class="glslCanvas" data-fragment-url="shader.frag"></canvas>
@@ -26,6 +28,15 @@
 
   <script>
     const canvas = document.querySelector("canvas");
+    const env = new GlslCanvas(canvas);
+
+    
+
+    zoom = 0.51;
+    X = 0.5;
+    Y = 1e-10;
+    let max_iter = 100.;
+    scale = Math.min(canvas.width, canvas.height) * zoom;
 
     // Function to resize canvas to fit the screen
     function resizeCanvas() {
@@ -33,9 +44,49 @@
       canvas.height = window.innerHeight;
     }
 
+    setTimeout(() => {
+      env.setUniform("zoom", 0.5);
+      env.setUniform("X", X);
+      env.setUniform("Y", Y);      
+      env.setUniform("max_iter_dyn", 1000.0);
+    }, 50);
+
     // Initial resize and on window resize
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas(); // Call it once to initialize
+    
+
+    document.addEventListener("mousedown", (event) => {  
+      
+      scale = Math.min(canvas.width, canvas.height) * zoom;
+      mouseX = event.clientX;
+      mouseY = canvas.height - event.clientY;
+      mouseX -= canvas.width/2;
+      mouseY -= canvas.height/2;
+      X -= mouseX/scale;
+      Y -= mouseY/scale;
+      zoom *= 1.51;
+      max_iter = Math.max(Math.floor(5000 - Math.log2(1 / zoom) * 6000), 1000);
+
+
+      env.setUniform("zoom", zoom);
+      env.setUniform("X", X);
+      env.setUniform("Y", Y);
+      env.setUniform("max_iter_dyn", max_iter);
+
+      console.log("zooming");
+      console.log(X);
+      console.log(Y);
+      console.log(zoom);
+    });
+    document.addEventListener("mouseup", (event) => {
+      env.setUniform("zoom", zoom);
+      env.setUniform("X", X);
+      env.setUniform("Y", Y);
+      env.setUniform("max_iter_dyn", max_iter);
+
+      console.log("no zoom");
+    });
   </script>
 
 </body>
