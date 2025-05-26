@@ -24,7 +24,7 @@ vec2 pos = vec2(X, Y);
 float iterate(inout vec2 loc) {
     vec2 original = vec2(cX, cY);
     for (float iter = 0.0; iter < max_iter; iter ++) {
-        if (abs(loc.x) > 3. || abs(loc.y) > 3.) {return iter;}
+        if (abs(loc.x) > 4. || abs(loc.y) > 4.) {return iter;}
         if (iter > max_iter_dyn) {return 0.0;}
         loc = vec2(loc.x*loc.x - loc.y * loc.y, loc.x*loc.y*2.0);
         loc += original;
