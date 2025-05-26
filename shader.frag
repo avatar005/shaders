@@ -55,7 +55,8 @@ void main(){
     float color = 0.0;
     vec3 fincol;
     color = iterate(location)/max_iter_dyn;
-    if (color != 0.) {fincol = vec3(pow(color, 0.2 + log(zoom)*0.03));}
+    // if (color != 0.) {fincol = vec3(pow(color, 0.2 + log(zoom)*0.03));}
+    if (color != 0.) {fincol = vec3(0.8 - pow(color, 0.2 - 0.01*pow(abs(log(zoom)), 0.8)));}
     else {fincol = vec3(0., 0., 0.);}
     
     gl_FragColor = vec4(fincol, 1.0);
