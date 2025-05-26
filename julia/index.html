@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fullscreen Shader</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+      background: black;
+    }
+    canvas {
+      display: block;
+    }
+    #iterCounter {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-family: monospace;
+      font-size: 16px;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    #instructions {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-family: monospace;
+      color: white;
+      z-index: 10;
+    }
+
+    #instructions .collapsed {
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: right;
+      transition: background 0.3s;
+      font-size: 16px;
+      z-index: 2;
+    }
+
+    #instructions .expanded {
+      position: absolute;
+      top: 40px;
+      right: 0;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      line-height: 1.4;
+      width: 320px;
+
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    #instructions:hover .expanded {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+  </style>
+</head>
+
+
+<body>
+
+  <canvas class="glslCanvas" data-fragment-url="shader.frag"></canvas>
+
+  <div id="iterCounter">Iterations: 300</div>
+
+  <div id="instructions">
+    <div class="collapsed">Instructions</div>
+    <div class="expanded">
+      <strong>Instructions</strong><br>
+      - Location of your mouse dictates the c value for the Julia set<br>
+      - Runs on WebGL so speed depends heavily on your hardware (GPU)
+    </div>
+  </div>
+
+  <!-- Load glslCanvas -->
+  <script src="https://cdn.jsdelivr.net/npm/glslCanvas@0.2.6/dist/GlslCanvas.min.js"></script>
+
+  <script>
+    const canvas = document.querySelector("canvas");
+    const env = new GlslCanvas(canvas);
+    const iterDisplay = document.getElementById("iterCounter");
+    
+
+    let zoom = 0.35;
+    let X = 1e-10;
+    let Y = 1e-10;
+    let max_iter = 300.;
+    let mouseX = 1e-10;
+    let mouseY = 1e-10;
+    let scale = Math.min(canvas.width, canvas.height) * zoom;
+    let moving = true;
+
+    // Function to resize canvas to fit the screen
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    function updateUniforms() {
+      env.setUniform("zoom", zoom);
+      env.setUniform("X", X);
+      env.setUniform("Y", Y);
+      if (moving) {
+        env.setUniform("cY", mouseY);
+        env.setUniform("cX", mouseX);
+      }
+      env.setUniform("max_iter_dyn", max_iter);
+      iterDisplay.textContent = `Iterations: ${max_iter}`;
+    }
+    function mouseUpdate() {
+        scale = Math.min(canvas.width, canvas.height) * zoom;
+        mouseX = event.clientX;
+        mouseY = canvas.height - event.clientY;
+        mouseX -= canvas.width/2;
+        mouseY -= canvas.height/2;
+        mouseX /= scale;
+        mouseY /= scale;
+    }
+
+    setTimeout(updateUniforms, 150);
+
+    // Initial resize and on window resize
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas(); // Call it once to initialize
+    
+
+    document.addEventListener("mousedown", (event) => {  
+      
+      mouseUpdate();
+      if (moving == false) {
+        X -= mouseX;
+        Y -= mouseY;
+        zoom *= 1.5;
+        max_iter = Math.max(Math.floor(5000 - Math.log2(1 / zoom) * 6000), 1000);
+      }
+      
+
+      updateUniforms();
+      
+      moving = false;
+      console.log("zooming");
+      console.log(X);
+      console.log(Y);
+      console.log(zoom);
+    });
+    document.addEventListener("mouseup",updateUniforms);
+
+    document.addEventListener("keypress", (event) => {
+      if (event.key == "r" || event.key == "R") {
+        zoom = 0.51;
+        X = 1e-10;
+        Y = 1e-10;
+        max_iter = 300.;
+        mouseX = 1e-10;
+        mouseY = 1e-10;
+        scale = Math.min(canvas.width, canvas.height) * zoom;
+        moving = true;
+        updateUniforms();
+      }
+    });
+    document.addEventListener("mousemove", (event) => {
+        if (moving) {
+            mouseUpdate();
+            updateUniforms();
+        }
+    });
+  </script>
+
+
+</body>
+</html>
