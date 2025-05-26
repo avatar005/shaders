@@ -26,6 +26,49 @@
       padding: 4px 8px;
       border-radius: 4px;
     }
+    #instructions {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-family: monospace;
+      color: white;
+      z-index: 10;
+    }
+
+    #instructions .collapsed {
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: right;
+      transition: background 0.3s;
+      font-size: 16px;
+      z-index: 2;
+    }
+
+    #instructions .expanded {
+      position: absolute;
+      top: 40px;
+      right: 0;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      line-height: 1.4;
+      width: 320px;
+
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    #instructions:hover .expanded {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
   </style>
 </head>
 
@@ -35,6 +78,18 @@
   <canvas class="glslCanvas" data-fragment-url="shader.frag"></canvas>
 
   <div id="iterCounter">Iterations: 100</div>
+
+  <div id="instructions">
+    <div class="collapsed">Instructions</div>
+    <div class="expanded">
+      <strong>Instructions</strong><br>
+      - Click to zoom in<br>
+      - Centers zoom at location of click<br>
+      - Reset zoom with R (or Ctrl-R) <br>
+      - Runs out of floating point precision around 100,000 iterations<br>
+      - Runs on WebGL so speed depends heavily on your hardware (GPU)
+    </div>
+  </div>
 
   <!-- Load glslCanvas -->
   <script src="https://cdn.jsdelivr.net/npm/glslCanvas@0.2.6/dist/GlslCanvas.min.js"></script>
@@ -64,7 +119,7 @@
       iterDisplay.textContent = `Iterations: ${max_iter}`;
     }
 
-    setTimeout(updateUniforms, 50);
+    setTimeout(updateUniforms, 150);
 
     // Initial resize and on window resize
     window.addEventListener("resize", resizeCanvas);
@@ -92,6 +147,16 @@
       console.log(zoom);
     });
     document.addEventListener("mouseup",updateUniforms);
+
+    document.addEventListener("keypress", (event) => {
+      if (event.key == "r" || event.key == "R") {
+        zoom = 0.51;
+        X = 0.5;
+        Y = 1e-10;
+        max_iter = 3000.;
+        updateUniforms();
+      }
+    });
   </script>
 
 
