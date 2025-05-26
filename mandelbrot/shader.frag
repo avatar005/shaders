@@ -72,7 +72,7 @@ void main(){
         // color = color/(200. + pow(0.2, log(zoom))*100.);
         color = log(1.0 + color) / (log(1.0 + max_iter_dyn));
         // fincol = vec3(1. - sqrt(color));
-        fincol = hsb2rgb(vec3(sqrt(color)-0.2 + u_colorshift, 0.6, 1.0)) * (1.0 - pow(color, 2.0));
+        fincol = hsb2rgb(vec3(sqrt(color)-0.4 + u_colorshift, 0.6, 1.0)) * (1.0 - pow(color, 2.0));
         
         // color = result + 1.0 - log(log(len))/log(2.0); //smooth out the color
         // color = color/max_iter_dyn;
