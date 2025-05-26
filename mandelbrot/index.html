@@ -100,11 +100,13 @@
     const iterDisplay = document.getElementById("iterCounter");
     
 
-    zoom = 0.51;
-    X = 0.5;
-    Y = 1e-10;
+    let zoom = 0.51;
+    let X = 0.5;
+    let Y = 1e-10;
     let max_iter = 3000.;
-    scale = Math.min(canvas.width, canvas.height) * zoom;
+    let scale = Math.min(canvas.width, canvas.height) * zoom;
+    let mouseX = 0;
+    let mouseY = 0;
 
     // Function to resize canvas to fit the screen
     function resizeCanvas() {
