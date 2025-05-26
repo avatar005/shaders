@@ -15,6 +15,17 @@
     canvas {
       display: block;
     }
+    #iterCounter {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-family: monospace;
+      font-size: 16px;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
   </style>
 </head>
 
@@ -23,19 +34,21 @@
 
   <canvas class="glslCanvas" data-fragment-url="shader.frag"></canvas>
 
+  <div id="iterCounter">Iterations: 100</div>
+
   <!-- Load glslCanvas -->
   <script src="https://cdn.jsdelivr.net/npm/glslCanvas@0.2.6/dist/GlslCanvas.min.js"></script>
 
   <script>
     const canvas = document.querySelector("canvas");
     const env = new GlslCanvas(canvas);
-
+    const iterDisplay = document.getElementById("iterCounter");
     
 
     zoom = 0.51;
     X = 0.5;
     Y = 1e-10;
-    let max_iter = 100.;
+    let max_iter = 3000.;
     scale = Math.min(canvas.width, canvas.height) * zoom;
 
     // Function to resize canvas to fit the screen
@@ -43,13 +56,15 @@
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     }
-
-    setTimeout(() => {
-      env.setUniform("zoom", 0.5);
+    function updateUniforms() {
+      env.setUniform("zoom", zoom);
       env.setUniform("X", X);
-      env.setUniform("Y", Y);      
-      env.setUniform("max_iter_dyn", 1000.0);
-    }, 50);
+      env.setUniform("Y", Y);
+      env.setUniform("max_iter_dyn", max_iter);
+      iterDisplay.textContent = `Iterations: ${max_iter}`;
+    }
+
+    setTimeout(updateUniforms, 50);
 
     // Initial resize and on window resize
     window.addEventListener("resize", resizeCanvas);
@@ -65,29 +80,20 @@
       mouseY -= canvas.height/2;
       X -= mouseX/scale;
       Y -= mouseY/scale;
-      zoom *= 1.51;
+      zoom *= 1.5;
       max_iter = Math.max(Math.floor(5000 - Math.log2(1 / zoom) * 6000), 1000);
 
 
-      env.setUniform("zoom", zoom);
-      env.setUniform("X", X);
-      env.setUniform("Y", Y);
-      env.setUniform("max_iter_dyn", max_iter);
+      updateUniforms();
 
       console.log("zooming");
       console.log(X);
       console.log(Y);
       console.log(zoom);
     });
-    document.addEventListener("mouseup", (event) => {
-      env.setUniform("zoom", zoom);
-      env.setUniform("X", X);
-      env.setUniform("Y", Y);
-      env.setUniform("max_iter_dyn", max_iter);
-
-      console.log("no zoom");
-    });
+    document.addEventListener("mouseup",updateUniforms);
   </script>
+
 
 </body>
 </html>
