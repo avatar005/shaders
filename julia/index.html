@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Fullscreen Shader</title>
+  <title>Julia Set</title>
   <style>
     html, body {
       margin: 0;
@@ -69,6 +69,22 @@
       transform: translateY(0);
       pointer-events: auto;
     }
+    #sliderContainer {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 8px;
+    border-radius: 6px;
+    z-index: 10;
+    font-family: monospace;
+    color:white;
+    font-size:16px;
+    }
+
+    #paramSlider {
+    width: 100%;
+    }
   </style>
 </head>
 
@@ -84,9 +100,18 @@
     <div class="expanded">
       <strong>Instructions</strong><br>
       - Location of your mouse dictates the c value for the Julia set<br>
+      - After click, you go into zoom mode<br>
+      - With each click, website zooms into the location of your mouse pointer<br>
+      - You can adjust the colors using the slider<br>
       - Runs on WebGL so speed depends heavily on your hardware (GPU)
     </div>
   </div>
+
+  <div id="sliderContainer">
+    <label for="paramSlider">Color adjustment</label><br>
+    <input type="range" id="paramSlider" min="-0.0" max="0.4" step="0.01" value="0.0">
+  </div>
+  
 
   <!-- Load glslCanvas -->
   <script src="https://cdn.jsdelivr.net/npm/glslCanvas@0.2.6/dist/GlslCanvas.min.js"></script>
@@ -95,6 +120,11 @@
     const canvas = document.querySelector("canvas");
     const env = new GlslCanvas(canvas);
     const iterDisplay = document.getElementById("iterCounter");
+    const slider = document.getElementById("paramSlider");
+
+// Set initial uniform value
+
+
     
 
     let zoom = 0.35;
@@ -121,6 +151,7 @@
       }
       env.setUniform("max_iter_dyn", max_iter);
       iterDisplay.textContent = `Iterations: ${max_iter}`;
+      env.setUniform("u_colorshift", parseFloat(slider.value));
     }
     function mouseUpdate() {
         scale = Math.min(canvas.width, canvas.height) * zoom;
@@ -139,7 +170,8 @@
     resizeCanvas(); // Call it once to initialize
     
 
-    document.addEventListener("mousedown", (event) => {  
+    document.addEventListener("mousedown", (event) => {
+        if (event.target.id === "paramSlider") return; 
       
       mouseUpdate();
       if (moving == false) {
@@ -178,6 +210,11 @@
             mouseUpdate();
             updateUniforms();
         }
+    });
+
+    // Update uniform when slider changes
+    slider.addEventListener("input", () => {
+        env.setUniform("u_colorshift", parseFloat(slider.value));
     });
   </script>
 

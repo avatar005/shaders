@@ -12,6 +12,7 @@ uniform float zoom;
 uniform float X;
 uniform float Y; 
 uniform float max_iter_dyn;
+uniform float u_colorshift;
 vec2 pos = vec2(X, Y);
 // float zoom = 0.5;
 // vec2 pos = vec2(0,0);
@@ -42,6 +43,15 @@ vec2 scale_pos(vec2 loc, vec2 scaler) {
     return loc;
 }
 
+vec3 hsb2rgb(vec3 c) {
+    vec3 rgb = clamp(abs(mod(c.x * 6.0 + vec3(0.0, 4.0, 2.0),
+                             6.0) - 3.0) - 1.0,
+                     0.0,
+                     1.0);
+    rgb = rgb * rgb * (3.0 - 2.0 * rgb); // smoothstep
+    return c.z * mix(vec3(1.0), rgb, c.y);
+}
+
 void main(){
     // float zoom = 0.5;
     pos = vec2(X, Y);
@@ -59,9 +69,15 @@ void main(){
     if (result != 0.) {
         float len = length(location);
         color = result + 1.0 - log(log(len))/log(2.0); //smooth out the color
-        color = color/max_iter_dyn;
-        // if (color != 0.) {fincol = vec3(pow(color, 0.2 + log(zoom)*0.03));}
-        fincol = vec3(0.8 - pow(color, 0.2 - 0.01*pow(abs(log(zoom)), 0.8)));
+        // color = color/(200. + pow(0.2, log(zoom))*100.);
+        color = log(1.0 + color) / (log(1.0 + max_iter_dyn));
+        // fincol = vec3(1. - sqrt(color));
+        fincol = hsb2rgb(vec3(sqrt(color)-0.2 + u_colorshift, 0.6, 1.0)) * (1.0 - pow(color, 2.0));
+        
+        // color = result + 1.0 - log(log(len))/log(2.0); //smooth out the color
+        // color = color/max_iter_dyn;
+        // // if (color != 0.) {fincol = vec3(pow(color, 0.2 + log(zoom)*0.03));}
+        // fincol = vec3(0.8 - pow(color, 0.2 - 0.01*pow(abs(log(zoom)), 0.8)));
     }
     
     else {fincol = vec3(0., 0., 0.);}

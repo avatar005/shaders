@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Fullscreen Shader</title>
+  <title>Mandelbrot Set</title>
   <style>
     html, body {
       margin: 0;
@@ -69,6 +69,22 @@
       transform: translateY(0);
       pointer-events: auto;
     }
+    #sliderContainer {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 8px;
+    border-radius: 6px;
+    z-index: 10;
+    font-family: monospace;
+    color:white;
+    font-size:16px;
+    }
+
+    #paramSlider {
+    width: 100%;
+    }
   </style>
 </head>
 
@@ -77,7 +93,7 @@
 
   <canvas class="glslCanvas" data-fragment-url="shader.frag"></canvas>
 
-  <div id="iterCounter">Iterations: 100</div>
+  <div id="iterCounter">Iterations: 1000</div>
 
   <div id="instructions">
     <div class="collapsed">Instructions</div>
@@ -87,8 +103,14 @@
       - Centers zoom at location of click<br>
       - Reset zoom with R (or Ctrl-R) <br>
       - Runs out of floating point precision around 100,000 iterations<br>
+      - You can adjust the colors using the slider<br>
       - Runs on WebGL so speed depends heavily on your hardware (GPU)
     </div>
+  </div>
+
+  <div id="sliderContainer">
+    <label for="paramSlider">Color adjustment</label><br>
+    <input type="range" id="paramSlider" min="-0.4" max="0.4" step="0.01" value="0.0">
   </div>
 
   <!-- Load glslCanvas -->
@@ -98,12 +120,13 @@
     const canvas = document.querySelector("canvas");
     const env = new GlslCanvas(canvas);
     const iterDisplay = document.getElementById("iterCounter");
+    const slider = document.getElementById("paramSlider");
     
 
     let zoom = 0.51;
     let X = 0.5;
     let Y = 1e-10;
-    let max_iter = 3000.;
+    let max_iter = 1000.;
     let scale = Math.min(canvas.width, canvas.height) * zoom;
     let mouseX = 0;
     let mouseY = 0;
@@ -119,6 +142,7 @@
       env.setUniform("Y", Y);
       env.setUniform("max_iter_dyn", max_iter);
       iterDisplay.textContent = `Iterations: ${max_iter}`;
+      env.setUniform("u_colorshift", parseFloat(slider.value));
     }
 
     setTimeout(updateUniforms, 150);
@@ -129,7 +153,8 @@
     
 
     document.addEventListener("mousedown", (event) => {  
-      
+      if (event.target.id === "paramSlider") return; 
+
       scale = Math.min(canvas.width, canvas.height) * zoom;
       mouseX = event.clientX;
       mouseY = canvas.height - event.clientY;
@@ -155,9 +180,14 @@
         zoom = 0.51;
         X = 0.5;
         Y = 1e-10;
-        max_iter = 3000.;
+        max_iter = 1000.;
         updateUniforms();
       }
+    });
+
+    // Update uniform when slider changes
+    slider.addEventListener("input", () => {
+        env.setUniform("u_colorshift", parseFloat(slider.value));
     });
   </script>
 
