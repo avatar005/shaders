@@ -21,7 +21,7 @@ vec2 pos = vec2(X, Y);
 float iterate(inout vec2 loc) {
     vec2 original = loc;
     for (float iter = 0.0; iter < max_iter; iter ++) {
-        if (length(loc) > 2.) {return iter;}
+        if (abs(loc.x) > 3. || abs(loc.y) > 2.) {return iter;}
         if (iter > max_iter_dyn) {return 0.0;}
         loc = vec2(loc.x*loc.x - loc.y * loc.y, loc.x*loc.y*2.0);
         loc += original;
@@ -54,9 +54,16 @@ void main(){
     
     float color = 0.0;
     vec3 fincol;
-    color = iterate(location)/max_iter_dyn;
-    // if (color != 0.) {fincol = vec3(pow(color, 0.2 + log(zoom)*0.03));}
-    if (color != 0.) {fincol = vec3(0.8 - pow(color, 0.2 - 0.01*pow(abs(log(zoom)), 0.8)));}
+
+    float result = iterate(location);
+    if (result != 0.) {
+        float len = length(location);
+        color = result + 1.0 - log(log(len)); //smooth out the color
+        color = color/max_iter_dyn;
+        // if (color != 0.) {fincol = vec3(pow(color, 0.2 + log(zoom)*0.03));}
+        fincol = vec3(0.8 - pow(color, 0.2 - 0.01*pow(abs(log(zoom)), 0.8)));
+    }
+    
     else {fincol = vec3(0., 0., 0.);}
     
     gl_FragColor = vec4(fincol, 1.0);
