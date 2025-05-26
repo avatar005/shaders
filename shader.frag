@@ -18,8 +18,8 @@ void main(){
 
     color.r += pow(sin(time/7.),2.)*0.2;
     
-    color.r += (1.0-distance(u_mouse, gl_FragCoord.xy)/length(u_resolution))*0.25;
-    color.g -= (1.0-distance(u_mouse, gl_FragCoord.xy)/length(u_resolution))*0.15;
+    color.r += (1.0-distance(u_mouse, gl_FragCoord.xy)/length(u_resolution))*0.15;
+    color.g -= (1.0-distance(u_mouse, gl_FragCoord.xy)/length(u_resolution))*0.1;
 
 
     gl_FragColor = vec4(color, 1.0);
