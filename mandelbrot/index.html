@@ -138,6 +138,7 @@
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+      updateUniforms();
     }
     function updateUniforms() {
       env.setUniform("zoom", zoom);
